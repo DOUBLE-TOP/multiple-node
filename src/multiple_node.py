@@ -166,10 +166,9 @@ class MultipleNode(Logger, BaseClient):
 
             response = await self.make_request(method="GET", url=url,
                                                headers=headers, module_name='Get info')
+            self.account.running_time = round(response['data']['totalRunningTime']/3600, 2)
 
             self.logger_msg(self.account, f"Info collected successfully.", 'success')
-
-            return round(response['data']['totalRunningTime']/3600, 2)
         except SoftwareException as e:
             self.logger_msg(self.account,
                             f"Info didn't collect successfully. by some reasons. Error - {e}",

@@ -41,9 +41,11 @@ class Runner(Logger):
         while True:
             try:
                 await node.keep_alive()
-                running_time_hours = await node.get_total_running_time()
-                self.logger_msg(account,
-                                f"Total running time in hours - {running_time_hours}", 'success')
+                if random.random() > 0.8:
+                    await node.get_total_running_time()
+                    await update_variables_in_file(self, account, await account.account_to_dict())
+                    self.logger_msg(account,
+                                    f"Total running time in hours - {account.running_time}", 'success')
                 await self.custom_sleep(account)
             except TokenException as e:
                 self.logger_msg(account, f"Token is incorrect. Error - {e}", 'warning')

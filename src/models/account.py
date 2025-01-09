@@ -11,6 +11,7 @@ class Account:
         self.proxy = proxy
         self.token = None
         self.user_agent = None
+        self.running_time = None
 
     async def get_detailed_dict_for_account(self):
         data = await read_account(self.public_key)
@@ -20,6 +21,7 @@ class Account:
             self.proxy = data.get("Proxy") or None
             self.token = data.get("Token") or None
             self.user_agent = data.get("User_Agent") or None
+            self.running_time = data.get("Running_Time") or None
 
     async def account_to_dict(self) -> dict:
         return {
@@ -28,6 +30,7 @@ class Account:
             "Proxy": self.proxy,
             "Token": self.token,
             "User_Agent": self.user_agent,
+            "Running_Time": self.running_time
         }
 
 
