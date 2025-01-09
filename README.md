@@ -47,10 +47,10 @@ cp ./data/accounts.example.csv ./data/accounts.csv
 ```
 2. Заполняем документ
    1. **Privare_key** - приватный ключ, который использовался при регистрации
-   2**Proxy** - прокси для каждого аккаунта в формате `http://user:password@host:port`. 
+   2. **Proxy** - прокси для каждого аккаунта в формате `http://user:password@host:port`. 
 3. Итого одна запись для аккаунта будет выглядить как строка
 ```bash
-some_email@gmail.com,some_password,http://user:proxy_pwd@host:port
+863836716381636724563545dggc677g7agD7G,http://user:proxy_pwd@host:port
 ```
 
 ##  Установка и запуск проекта
