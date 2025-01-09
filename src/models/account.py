@@ -1,3 +1,5 @@
+import re
+
 from web3 import Web3
 
 from src.utils.file_manager import read_account
@@ -35,4 +37,9 @@ class Account:
 
 
 async def default_dict_to_account(data) -> Account:
-    return Account(private_key=data.get('Private_key'), proxy=data.get('Proxy'))
+    def beautify_string(data_string):
+        data_string = data_string.strip()
+        data_string = re.sub('\\s+', ' ', data_string)
+        return data_string
+    return Account(private_key=beautify_string(data.get('Private_key')),
+                   proxy=beautify_string(data.get('Proxy')))
