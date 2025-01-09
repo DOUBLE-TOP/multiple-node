@@ -44,78 +44,77 @@ class MultipleNode(Logger, BaseClient):
             await self.extension_login(web_token)
 
     async def wallet_login(self):
-        url = 'https://api.app.multiple.cc/WalletLogin'
+        while True:
+            url = 'https://api.app.multiple.cc/WalletLogin'
 
-        sec_ch_ua, sec_ua_platform = await self.generate_headers()
-        headers = {
-            'accept': 'application/json, text/plain, */*',
-            'accept-language': 'en-US,en;q=0.8',
-            'authorization': 'Bearer',
-            'content-type': 'application/json',
-            'origin': 'https://www.app.multiple.cc',
-            'priority': 'u=1, i',
-            'referer': 'https://www.app.multiple.cc/',
-            'sec-ch-ua': f'{sec_ch_ua}',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': f'"{sec_ua_platform}"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'cross-site',
-            'sec-gpc': '1',
-            'user-agent': self.account.user_agent
-        }
+            sec_ch_ua, sec_ua_platform = await self.generate_headers()
+            headers = {
+                'accept': 'application/json, text/plain, */*',
+                'accept-language': 'en-US,en;q=0.8',
+                'authorization': 'Bearer',
+                'content-type': 'application/json',
+                'origin': 'https://www.app.multiple.cc',
+                'priority': 'u=1, i',
+                'referer': 'https://www.app.multiple.cc/',
+                'sec-ch-ua': f'{sec_ch_ua}',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': f'"{sec_ua_platform}"',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'cross-site',
+                'sec-gpc': '1',
+                'user-agent': self.account.user_agent
+            }
 
-        message, signature = await self.generate_signature()
-        payload = {
-            "walletAddr": self.account.public_key,
-            "message": message,
-            "signature": signature
-        }
+            message, signature = await self.generate_signature()
+            payload = {
+                "walletAddr": self.account.public_key,
+                "message": message,
+                "signature": signature
+            }
 
-        try:
-            response = await self.make_request(method="POST", url=url, headers=headers,
-                                               json=payload, module_name='Login on Web')
+            try:
+                response = await self.make_request(method="POST", url=url, headers=headers,
+                                                   json=payload, module_name='Login on Web')
 
-            self.logger_msg(self.account, f"User logged in successfully on Web.", 'success')
-            return f"Bearer {response['data']['token']}"
-        except SoftwareException as e:
-            self.logger_msg(self.account,
-                            f"User was not logged in on Web. Error - {e}", 'error')
-            await self.session.close()
-            exit(1)
+                self.logger_msg(self.account, f"User logged in successfully on Web.", 'success')
+                return f"Bearer {response['data']['token']}"
+            except SoftwareException as e:
+                self.logger_msg(self.account,
+                                f"User was not logged in on Web. Error - {e}", 'warning')
 
     async def extension_login(self, web_token):
-        url = "https://api.app.multiple.cc/ChromePlugin/Login"
+        while True:
+            url = "https://api.app.multiple.cc/ChromePlugin/Login"
 
-        sec_ch_ua, sec_ua_platform = await self.generate_headers()
-        headers = {
-            'accept': 'application/json, text/plain, */*',
-            'accept-language': 'en-US,en;q=0.9',
-            'authorization': f'{web_token}',
-            'content-type': 'application/json',
-            'origin': 'chrome-extension://ciljbjmmdhnhgbihlcohoadafmhikgib',
-            'priority': 'u=1, i',
-            'sec-ch-ua': sec_ch_ua,
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': sec_ua_platform,
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'none',
-            'sec-gpc': '1',
-            'user-agent': self.account.user_agent
-        }
+            sec_ch_ua, sec_ua_platform = await self.generate_headers()
+            headers = {
+                'accept': 'application/json, text/plain, */*',
+                'accept-language': 'en-US,en;q=0.9',
+                'authorization': f'{web_token}',
+                'content-type': 'application/json',
+                'origin': 'chrome-extension://ciljbjmmdhnhgbihlcohoadafmhikgib',
+                'priority': 'u=1, i',
+                'sec-ch-ua': sec_ch_ua,
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': sec_ua_platform,
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'none',
+                'sec-gpc': '1',
+                'user-agent': self.account.user_agent
+            }
 
-        try:
-            response = await self.make_request(method="POST", url=url, headers=headers,
-                                               module_name='Extension Login on Chrome')
+            try:
+                response = await self.make_request(method="POST", url=url, headers=headers,
+                                                   module_name='Extension Login on Chrome')
 
-            self.logger_msg(self.account, f"Extension Login on Chrome successfully.", 'success')
-            self.account.token = f"Bearer {response['data']['token']}"
-        except SoftwareException as e:
-            self.logger_msg(self.account,
-                            f"Extension Login on Chrome is not successful. Error - {e}", 'error')
-            await self.session.close()
-            exit(1)
+                self.logger_msg(self.account, f"Extension Login on Chrome successfully.", 'success')
+                self.account.token = f"Bearer {response['data']['token']}"
+                return
+            except SoftwareException as e:
+                self.logger_msg(self.account,
+                                f"Extension Login on Chrome is not successful. Error - {e}", 'warning')
 
     async def keep_alive(self):
         try:
