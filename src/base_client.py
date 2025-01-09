@@ -4,6 +4,7 @@ import ssl
 from abc import ABC
 from random import randint
 
+from asyncio.exceptions import TimeoutError as AsyncioTimeoutError
 import aiohttp
 from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector
@@ -11,6 +12,7 @@ from aiohttp_socks import ProxyConnector
 from src.models.account import Account
 from src.models.exceptions import SoftwareException, TokenException
 from src.models.user_agents import USER_AGENTS
+from src.utils.logger import Logger
 
 
 class BaseClient(ABC):
@@ -38,7 +40,7 @@ class BaseClient(ABC):
                         else:
                             raise SoftwareException(
                                 f"Bad request to {self.__class__.__name__}({module_name}) API: {response}")
-                    elif response.status in [401]:
+                    elif response.status in [400, 401]:
                         raise TokenException(
                             f"Bad request to {self.__class__.__name__}({module_name}) API: {response}")
             except aiohttp.client_exceptions.ServerDisconnectedError as error:
@@ -47,15 +49,25 @@ class BaseClient(ABC):
                 if total_time > timeout:
                     raise SoftwareException(
                         f"Bad request to {self.__class__.__name__}({module_name}) Error: {error}")
+                self.logger_msg(self.account, f"Request failed due to timeout. Retrying one more time", 'warning')
                 continue
             except TokenException as error:
                 raise TokenException(f"Bad request to {self.__class__.__name__}({module_name}) Error: {error}")
             except SoftwareException as error:
                 raise SoftwareException(f"Bad request to {self.__class__.__name__}({module_name}) Error: {error}")
-            except TimeoutError:
-                continue
             except Exception as error:
-                raise SoftwareException(f"Bad request to {self.__class__.__name__}({module_name}) Error: {error}")
+                if isinstance(error, AsyncioTimeoutError):
+                    total_time += 15
+                    await asyncio.sleep(15)
+                    if total_time > timeout:
+                        raise SoftwareException(
+                            f"Bad request to {self.__class__.__name__}({module_name}) Error: {error}")
+                    self.logger_msg(self.account, f"Request failed due to timeout. Retrying one more time", 'warning')
+                    continue
+                else:
+                    raise SoftwareException(
+                        f"{self.__class__.__name__}({module_name}). "
+                        f"Request failed due to timeout. Retrying one more time")
 
     async def generate_headers(self):
         if 'None' in str(self.account.user_agent):

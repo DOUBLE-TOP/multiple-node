@@ -6,7 +6,7 @@ from web3 import AsyncWeb3
 
 from src.base_client import BaseClient
 from src.models.account import Account
-from src.models.exceptions import SoftwareException, TokenException
+from src.models.exceptions import SoftwareException
 from src.utils.logger import Logger
 
 
@@ -140,3 +140,37 @@ class MultipleNode(Logger, BaseClient):
         except SoftwareException as e:
             self.logger_msg(self.account,
                             f"Keep alive was not recorded by some reasons. Error - {e}", 'warning')
+
+    async def get_total_running_time(self):
+        try:
+            url = 'https://api.app.multiple.cc/ChromePlugin/GetInformation'
+
+            sec_ch_ua, sec_ua_platform = await self.generate_headers()
+            headers = {
+                'accept': 'application/json, text/plain, */*',
+                'accept-language': 'en-US,en;q=0.9',
+                'authorization': self.account.token,
+                'content-length': '0',
+                'content-type': 'application/x-www-form-urlencoded',
+                'origin': 'chrome-extension://ciljbjmmdhnhgbihlcohoadafmhikgib',
+                'priority': 'u=1, i',
+                'sec-ch-ua': sec_ch_ua,
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': sec_ua_platform,
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'none',
+                'sec-gpc': '1',
+                'user-agent': self.account.user_agent
+            }
+
+            response = await self.make_request(method="GET", url=url,
+                                               headers=headers, module_name='Get info')
+
+            self.logger_msg(self.account, f"Info collected successfully.", 'success')
+
+            return round(response['data']['totalRunningTime']/3600, 2)
+        except SoftwareException as e:
+            self.logger_msg(self.account,
+                            f"Info didn't collect successfully. by some reasons. Error - {e}",
+                            'warning')

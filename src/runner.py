@@ -41,6 +41,9 @@ class Runner(Logger):
         while True:
             try:
                 await node.keep_alive()
+                running_time_hours = await node.get_total_running_time()
+                self.logger_msg(account,
+                                f"Total running time in hours - {running_time_hours}", 'success')
                 await self.custom_sleep(account)
             except TokenException as e:
                 self.logger_msg(account, f"Token is incorrect. Error - {e}", 'warning')
