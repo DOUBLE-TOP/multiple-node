@@ -46,7 +46,7 @@ git clone https://github.com/DOUBLE-TOP/multiple-node.git
 cp ./data/accounts.example.csv ./data/accounts.csv
 ```
 2. Заполняем документ
-   1. **Privare_key** - приватный ключ, который использовался при регистрации
+   1. **Private_key** - приватный ключ, который использовался при регистрации
    2. **Proxy** - прокси для каждого аккаунта в формате `http://user:password@host:port`. 
 3. Итого одна запись для аккаунта будет выглядить как строка
 ```bash
