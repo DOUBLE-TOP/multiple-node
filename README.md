@@ -41,7 +41,7 @@ git clone https://github.com/DOUBLE-TOP/multiple-node.git
 
 ### 4. Добавление аккаунтов Multiple Network Node
 
-1. Копируем файл _accounts.example.csvt_ в файл _accounts.csv_
+1. Копируем файл _accounts.example.csv_ в файл _accounts.csv_
 ```bash
 cp ./data/accounts.example.csv ./data/accounts.csv
 ```
