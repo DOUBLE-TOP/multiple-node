@@ -18,9 +18,7 @@ class Account:
     async def get_detailed_dict_for_account(self):
         data = await read_account(self.public_key)
         if len(data) > 0:
-            self.private_key = data.get("Private_key") or None
             self.public_key = data.get("Public_key") or None
-            self.proxy = data.get("Proxy") or None
             self.token = data.get("Token") or None
             self.user_agent = data.get("User_Agent") or None
             self.running_time = data.get("Running_Time") or None
